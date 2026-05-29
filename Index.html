@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Margin Notes — A Book Review Blog</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=Karla:wght@400;500;700&display=swap');
+
+:root{
+  --bg:#14110f;
+  --panel:#1d1916;
+  --cream:#f3ead9;
+  --rose:#c06a4f;
+  --gold:#d9a441;
+  --muted:#9a8f7e;
+  --line:#332c26;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--cream);
+  font-family:'Karla',sans-serif;
+  line-height:1.6;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px;}
+
+/* header */
+header{
+  border-bottom:1px solid var(--line);
+  padding:46px 0 30px;
+  text-align:center;
+}
+header .kicker{
+  font-size:12px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;
+}
+header h1{
+  font-family:'Playfair Display',serif;
+  font-weight:900;
+  font-size:54px;
+  line-height:1.05;
+  letter-spacing:-1px;
+}
+header p{color:var(--muted);margin-top:14px;font-style:italic;font-size:18px;}
+
+/* controls */
+.controls{
+  display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+  padding:26px 0;border-bottom:1px solid var(--line);
+}
+.controls input,.controls select{
+  background:var(--panel);border:1px solid var(--line);color:var(--cream);
+  padding:11px 14px;font-family:'Karla',sans-serif;font-size:14px;border-radius:2px;min-width:200px;
+}
+.controls input:focus,.controls select:focus{outline:none;border-color:var(--gold);}
+
+/* grid */
+.grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+  gap:26px;padding:40px 0;
+}
+.card{
+  background:var(--panel);border:1px solid var(--line);border-radius:4px;
+  padding:26px;display:flex;flex-direction:column;gap:12px;
+}
+.card .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+.card h2{font-family:'Playfair Display',serif;font-weight:700;font-size:23px;line-height:1.2;}
+.card .author{color:var(--muted);font-size:14px;font-style:italic;}
+.genre{
+  font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);
+  border:1px solid var(--gold);padding:3px 9px;border-radius:20px;white-space:nowrap;
+}
+.stars{color:var(--gold);font-size:18px;letter-spacing:2px;}
+.stars .empty{color:var(--line);}
+.review{color:#d9cfbd;font-size:15px;}
+.card .foot{
+  margin-top:auto;padding-top:14px;border-top:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);
+}
+.del{background:none;border:none;color:var(--rose);cursor:pointer;font-size:13px;font-family:'Karla';}
+.del:hover{text-decoration:underline;}
+
+.empty-state{text-align:center;color:var(--muted);padding:60px 0;font-style:italic;grid-column:1/-1;}
+
+/* add form */
+.add-section{border-top:1px solid var(--line);padding:44px 0 70px;}
+.add-section h3{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:6px;}
+.add-section .sub{color:var(--muted);margin-bottom:24px;font-style:italic;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:760px;}
+.form-grid .full{grid-column:1/-1;}
+label{display:block;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+input,select,textarea{
+  width:100%;background:var(--bg);border:1px solid var(--line);color:var(--cream);
+  padding:11px 13px;font-family:'Karla',sans-serif;font-size:15px;border-radius:2px;
+}
+textarea{resize:vertical;min-height:90px;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);}
+.btn{
+  background:var(--rose);color:#fff;border:none;padding:13px 26px;
+  font-family:'Karla';font-weight:700;font-size:15px;border-radius:2px;cursor:pointer;margin-top:6px;
+}
+.btn:hover{background:#a9573e;}
+@media(max-width:620px){
+  header h1{font-size:38px;}
+  .form-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">Reading Journal</div>
+    <h1>Margin&nbsp;Notes</h1>
+    <p>Honest reviews of the books I've been reading lately.</p>
+  </header>
+
+  <div class="controls">
+    <input type="text" id="search" placeholder="Search by title or author…" oninput="render()">
+    <select id="genreFilter" onchange="render()">
+      <option value="">All genres</option>
+      <option>Fiction</option>
+      <option>Non-fiction</option>
+      <option>Fantasy</option>
+      <option>Mystery</option>
+      <option>Biography</option>
+      <option>Science</option>
+    </select>
+    <select id="sortBy" onchange="render()">
+      <option value="recent">Newest first</option>
+      <option value="rating">Highest rated</option>
+      <option value="title">Title A–Z</option>
+    </select>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="add-section">
+    <h3>Add a review</h3>
+    <p class="sub">Jot down your thoughts on a book you've just finished.</p>
+    <div class="form-grid">
+      <div>
+        <label>Book title</label>
+        <input type="text" id="fTitle" placeholder="e.g. The Night Circus">
+      </div>
+      <div>
+        <label>Author</label>
+        <input type="text" id="fAuthor" placeholder="e.g. Erin Morgenstern">
+      </div>
+      <div>
+        <label>Genre</label>
+        <select id="fGenre">
+          <option>Fiction</option>
+          <option>Non-fiction</option>
+          <option>Fantasy</option>
+          <option>Mystery</option>
+          <option>Biography</option>
+          <option>Science</option>
+        </select>
+      </div>
+      <div>
+        <label>Rating (1–5)</label>
+        <select id="fRating">
+          <option value="5">★★★★★ (5)</option>
+          <option value="4">★★★★ (4)</option>
+          <option value="3">★★★ (3)</option>
+          <option value="2">★★ (2)</option>
+          <option value="1">★ (1)</option>
+        </select>
+      </div>
+      <div class="full">
+        <label>Your review</label>
+        <textarea id="fReview" placeholder="What did you think of it?"></textarea>
+      </div>
+      <div class="full">
+        <button class="btn" onclick="addReview()">Publish review</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Each review is an object in this list.
+  const defaultReviews = [
+    { id:1, title:"The Night Circus", author:"Erin Morgenstern", genre:"Fantasy", rating:5,
+      review:"A dreamlike, beautifully written story. The circus itself feels like a character. I didn't want it to end." },
+    { id:2, title:"Educated", author:"Tara Westover", genre:"Biography", rating:5,
+      review:"Powerful and hard to put down. A remarkable account of growing up and learning to think for yourself." },
+    { id:3, title:"Project Hail Mary", author:"Andy Weir", genre:"Science", rating:4,
+      review:"Smart, funny, and surprisingly emotional. The science is dense in places but the heart of the story carries it." },
+    { id:4, title:"The Thursday Murder Club", author:"Richard Osman", genre:"Mystery", rating:4,
+      review:"Charming and clever. The characters are a delight, even when the plot gets a little tangled." }
+  ];
+
+  // Load saved reviews from the browser, or start with the defaults.
+  let reviews = JSON.parse(localStorage.getItem("margin_notes")) || defaultReviews;
+  let nextId = reviews.length ? Math.max(...reviews.map(r => r.id)) + 1 : 1;
+
+  function save(){ localStorage.setItem("margin_notes", JSON.stringify(reviews)); }
+
+  function starsHTML(n){
+    let s = "";
+    for(let i=1;i<=5;i++) s += i<=n ? "★" : '<span class="empty">★</span>';
+    return s;
+  }
+
+  function addReview(){
+    const title = document.getElementById("fTitle").value.trim();
+    const author = document.getElementById("fAuthor").value.trim();
+    if(!title || !author){ alert("Please add at least a title and author."); return; }
+    reviews.push({
+      id: nextId++,
+      title, author,
+      genre: document.getElementById("fGenre").value,
+      rating: parseInt(document.getElementById("fRating").value,10),
+      review: document.getElementById("fReview").value.trim() || "No notes yet."
+    });
+    save();
+    document.getElementById("fTitle").value = "";
+    document.getElementById("fAuthor").value = "";
+    document.getElementById("fReview").value = "";
+    render();
+  }
+
+  function removeReview(id){
+    if(confirm("Delete this review?")){
+      reviews = reviews.filter(r => r.id !== id);
+      save(); render();
+    }
+  }
+
+  // render() rebuilds the cards every time something changes.
+  function render(){
+    const grid = document.getElementById("grid");
+    const q = document.getElementById("search").value.trim().toLowerCase();
+    const gf = document.getElementById("genreFilter").value;
+    const sort = document.getElementById("sortBy").value;
+
+    let list = reviews.filter(r => {
+      const matchQ = !q || r.title.toLowerCase().includes(q) || r.author.toLowerCase().includes(q);
+      const matchG = !gf || r.genre === gf;
+      return matchQ && matchG;
+    });
+
+    if(sort === "rating") list.sort((a,b)=>b.rating-a.rating);
+    else if(sort === "title") list.sort((a,b)=>a.title.localeCompare(b.title));
+    else list.sort((a,b)=>b.id-a.id);
+
+    grid.innerHTML = "";
+    if(!list.length){
+      grid.innerHTML = '<div class="empty-state">No reviews match your search yet.</div>';
+      return;
+    }
+    list.forEach(r => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <div class="top">
+          <h2>${r.title}</h2>
+          <span class="genre">${r.genre}</span>
+        </div>
+        <div class="author">by ${r.author}</div>
+        <div class="stars">${starsHTML(r.rating)}</div>
+        <p class="review">${r.review}</p>
+        <div class="foot">
+          <span>${r.rating} / 5</span>
+          <button class="del" onclick="removeReview(${r.id})">Delete</button>
+        </div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  render();
+</script>
+</body>
+</html>
